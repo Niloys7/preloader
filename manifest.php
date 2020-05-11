@@ -10,3 +10,7 @@ $manifest['version'] = '1.0';
 $manifest['display'] = true;
 $manifest['standalone'] = true;
 $manifest['thumbnail'] = 'thumbnail.jpg';
+$manifest['github_repo'] = 'https://github.com/Niloys7/preloader';
+$manifest['author'] = 'Codeixer';
+$manifest['author_uri'] = 'http://codeixer.com/';
+$manifest['github_update'] = 'niloys7/preloader';

@@ -10,16 +10,19 @@ class FW_Extension_Preloader extends FW_Extension {
 	public function _init() {
         
 		add_action( 'fw_customizer_options', [$this,'_filter_theme_fw_customizer_options'] );
-		add_action( 'wp_footer', [$this,'_render_preloader'] );
-		add_action( 'wp_enqueue_scripts', [$this,'_enqueue_scripts'] );
 		
+		if( 'true' == fw_get_db_customizer_option('preloader/render') ){
+			add_action( 'wp_footer', [$this,'_render_preloader'] );
+			add_action( 'wp_enqueue_scripts', [$this,'_enqueue_scripts'] );
+		}
 
 
 	}
-// fw_ext('builder')->get_uri('/static/css/frontend-grid.css'),
+
 	function _enqueue_scripts(){
 		$animation_file = fw_get_db_customizer_option('preloader/true/preloader_type/preloader_css/animation');
 		wp_enqueue_style( 'preloader-animation', fw_ext('preloader')->get_uri('/assets/css/'.$animation_file.'.min.css'), null, '1.0' );
+		wp_enqueue_script( 'cix-prelaoder', fw_ext('preloader')->get_uri('/assets/js/preloader.js'), ['jquery'], '1.0' );
 
 		$color = fw_get_db_customizer_option('preloader/true/preloader_type/preloader_css/prelaoder_color'); //E.g. #FF0000
 		$bg_color = fw_get_db_customizer_option('preloader/true/bg_color');
@@ -42,6 +45,9 @@ class FW_Extension_Preloader extends FW_Extension {
 			background: #000;
 			z-index: 9999;
 			top: 0;
+			display: flex;
+			justify-content: center;
+			align-items: center;
 			background: {$bg_color};
 		}
 		.cix-preloader > div,.cix-preloader >img {
@@ -61,38 +67,14 @@ class FW_Extension_Preloader extends FW_Extension {
             color: {$color};
 		}";
 		wp_add_inline_style( 'preloader-animation', $preloader_css );
-		wp_add_inline_script( 'jquery-migrate', "
-
-		function setMargins() {
-			width = jQuery(window).width();
-			height = jQuery(window).height();
-			containerWidth = jQuery(\"#preloader > div,#preloader > img\").width(); 
-
-			containerHeight = jQuery(\"#preloader > div,#preloader > img\").height();  
-			
-			topMargin = (height-containerWidth)/2;    
-			leftMargin = (width-containerWidth)/2;    
-			jQuery(\"#preloader > div,#preloader > img\").css(\"marginLeft\", leftMargin);    
-			jQuery(\"#preloader > div,#preloader > img\").css(\"marginTop\", topMargin);    
-		}
-
-		jQuery(window).on('load', function() { 
-           jQuery('#preloader > div,#preloader > img').fadeOut(); 
-           jQuery('#preloader').delay(350).fadeOut('slow'); 
-		   jQuery('body').delay(350).css({'overflow':'visible'});
-		   
-		   setMargins();
-			jQuery(window).resize(function() {
-				setMargins();    
-			});
 	
-          })");
 		
 
 	}
 
 
 	function _render_preloader() {
+	
 		$animation_value = fw_get_db_customizer_option('preloader/true/preloader_type/preloader_css/animation');
 		//fw_print(fw_get_db_customizer_option('preloader/true/preloader_type/logo/pre_logo/url'));
 
@@ -112,7 +94,7 @@ class FW_Extension_Preloader extends FW_Extension {
 	/*
 	Preloader Animation Html 
 	*/
-	static function animation_html($animation){
+	public function animation_html($animation){
 
 		$markup = array(
 			'ball-atom' => '<div class="prelaoder-color la-ball-atom la-2x"> <div></div> <div></div> <div></div> <div></div> </div>',
@@ -173,14 +155,19 @@ class FW_Extension_Preloader extends FW_Extension {
 				'label' => false,
 				'desc' => false,
 				'picker' => array(
-					'gadget' => array(
-						'label' => false,
-						'attr'  => array( 'class' => 'hidden'),
+					'render' => array(
+						'label' => __('Preloader', 'fw'),
+						//'attr'  => array( 'class' => 'hidden'),
 						'type' => 'switch',
 						
 						'right-choice' => array(
 							'value' => 'true',
-							'label' => esc_html__('Yes', 'bariel')
+							'label' => esc_html__('Yes', 'fw')
+						),
+						
+						'left-choice' => array(
+							'value' => 'false',
+							'label' => esc_html__('No', 'fw')
 						),
 						'value' => 'true'
 					)
